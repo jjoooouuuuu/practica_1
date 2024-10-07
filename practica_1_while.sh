@@ -1,5 +1,6 @@
 #!/bin/bash
 
+if [ ! -f sortida.csv ]; then
 cut -d ',' -f 1-11,13-15 supervivents.csv > pas1.csv
 echo "Columnes 'description' i 'thumbnail_link' eliminades."
 
@@ -43,3 +44,20 @@ echo "$video_id,$trending_date,$title,$channel_title,$category_id,$publish_time,
 echo "Percentatges calculats."
 
 rm pas1.csv pas2.csv pas3.csv pas4.csv
+
+fi
+
+echo "Introdueix la teva cerca:"
+read video
+cerca=$(awk -F ',' -v search="$video" 'tolower($1) ~ tolower(search) || tolower($3) ~ tolower(search)' sortida.csv)
+
+
+while [ -z "$cerca" ]; do
+	echo "No s'han trobat coincidències amb la cerca."
+	echo "Introdueix la teva cerca:"
+	read video
+
+	cerca=$(awk -F ',' -v search="$video" 'tolower($1) ~ tolower(search) || tolower($3) ~ tolower(search)' sortida.csv)
+done
+	echo "$cerca" | cut -d ',' -f 3,6,8-10,16-18
+
