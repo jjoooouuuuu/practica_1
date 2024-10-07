@@ -1,13 +1,14 @@
 #!/bin/bash
 
 cut -d ',' -f 1-11,13-15 supervivents.csv > pas1.csv
+echo "Columnes 'description' i 'thumbnail_link' eliminades."
 
-videos_amb_error=$(awk -F ','  '$14 == "True"' pas1.csv | wc -l)
+vid_err=$(awk -F ','  '$14 == "True"' pas1.csv | wc -l)
 awk -F ',' '$14 != "True"' pas1.csv > pas2.csv
-echo "S'han eliminat $videos_amb_error vídeos amb error"
+echo "S'han eliminat $vid_err vídeos amb error."
 
-awk 'BEGIN {FS=OFS=","} 
-NR==1 {$0 = $0 ",Ranking_Views"} 
+awk 'BEGIN {FS=OFS=","}
+NR==1 {$0 = $0 ",Ranking_Views"}
 1' pas2.csv > pas3.csv
 
 awk -F ',' 'BEGIN {OFS=","}
@@ -25,5 +26,20 @@ awk -F ',' 'BEGIN {OFS=","}
     print $0, ranking;
     }
 }' pas3.csv > pas4.csv
+echo "Columna 'Ranking_views' creada."
 
-rm pas1.csv pas2.csv pas3.csv
+echo "Calculant percentatges de likes i dislikes..."
+echo "$(head -n 1 pas4.csv),Rlikes,Rdislikes" > sortida.csv
+    tail -n +2 pas4.csv | while IFS=',' read -r video_id trending_date title channel_title category_id publish_time tags views likes dislikes comment_count ratings_disabled video_error_or_removed Ranking_Views; do
+    if [ "$views" -ne 0 ]; then
+            Rlikes=$(( (likes * 100) / views ))
+            Rdislikes=$(( (dislikes * 100) / views ))
+        else
+            Rlikes=0
+            Rdislikes=0
+        fi
+echo "$video_id,$trending_date,$title,$channel_title,$category_id,$publish_time,$tags,$views,$likes,$dislikes,$comment_count,$ratings_disabled,$video_error_or_removed,$Ranking_Views,$Rlikes,$Rdislikes" >> sortida.csv
+    done
+echo "Percentatges calculats."
+
+rm pas1.csv pas2.csv pas3.csv pas4.csv
