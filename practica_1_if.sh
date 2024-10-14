@@ -49,11 +49,12 @@ fi
 
 echo "Introdueix la teva cerca:"
 read video
-cerca=$(awk -F ',' -v search="$video" 'tolower($1) ~ tolower(search) || tolower($3) ~ tolower(search)' sortida.csv)
+resultat=$(awk -F ',' -v cerca="$video" 'tolower($1) ~ tolower(cerca) || tolower($3) ~ tolower(cerca)' sortida.csv)
 
 
-if [ -z "$cerca" ]; then
+if [ -z "$resultat" ]; then
 	echo "No s'han trobat coincidències amb la cerca"
 else
-	echo "$cerca" | cut -d ',' -f 3,6,8-10,16-18
+	echo "$resultat" | cut -d ',' -f 3,6,8-10,16-18
 fi
+
